@@ -558,7 +558,7 @@ class HidraProjectFile(object):
 
         Returns
         -------
-        list
+        List
             list of string for all the peak tags
 
         """
