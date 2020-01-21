@@ -6,10 +6,10 @@ import bisect
 from mantid.kernel import FloatPropertyWithValue, FloatTimeSeriesProperty, Int32TimeSeriesProperty, \
     Int64TimeSeriesProperty, logger, Logger
 from mantid.simpleapi import mtd, ConvertToMatrixWorkspace, DeleteWorkspace, FilterByLogValue, \
-    FilterByTime, LoadEventNexus, LoadMask, MaskDetectors
+    FilterByTime, LoadEventNexus, LoadMask, MaskDetectors, RemoveLogs
 import numpy
 import os
-from pyrs.core import workspaces
+from pyrs.core import workspaces, summary_generator
 from pyrs.core.instrument_geometry import AnglerCameraDetectorGeometry, HidraSetup
 from pyrs.dataobjects import HidraConstants
 from pyrs.projectfile import HidraProjectFile, HidraProjectFileMode
@@ -268,6 +268,11 @@ class NeXusConvertingApp(object):
         """
         # Load
         ws = LoadEventNexus(Filename=self._nexus_name, OutputWorkspace=self._event_ws_name)
+
+        # Remove logs
+        logs_to_keep = summary_generator.DEFAULT_BODY_TITLES
+        logs_to_keep.append(SUBRUN_LOGNAME)
+        RemoveLogs(Workspace=ws, KeepLogs=logs_to_keep)
 
         # Mask
         if self._mask_file_name is not None:
