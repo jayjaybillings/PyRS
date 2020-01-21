@@ -272,6 +272,7 @@ class NeXusConvertingApp(object):
         # Remove logs
         logs_to_keep = summary_generator.DEFAULT_BODY_TITLES
         logs_to_keep.append(SUBRUN_LOGNAME)
+        logs_to_keep.append('start_time')
         RemoveLogs(Workspace=ws, KeepLogs=logs_to_keep)
 
         # Mask
