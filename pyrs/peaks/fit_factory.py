@@ -1,4 +1,5 @@
 # Peak fitting engine
+from __future__ import (absolute_import, division, print_function)  # python3 compatibility
 SupportedPeakProfiles = ['Gaussian', 'PseudoVoigt', 'Voigt']
 SupportedBackgroundTypes = ['Flat', 'Linear', 'Quadratic']
 
