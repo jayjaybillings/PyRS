@@ -58,7 +58,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="lineEdit_expNumber">
+             <widget class="QLineEdit" name="lineEdit_run_number">
               <property name="minimumSize">
                <size>
                 <width>100</width>

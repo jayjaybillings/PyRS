@@ -82,6 +82,7 @@ class FitPeaksWindow(QMainWindow):
 
         # set up handling
         # self.ui.pushButton_loadHDF.clicked.connect(self.load_hidra_file)
+        self.ui.lineEdit_run_number.returnPressed.connect(self.run_number_returned)
         self.ui.pushButton_browseHDF.clicked.connect(self.browse_hdf)
         self.ui.lineEdit_listSubRuns.returnPressed.connect(self.plot_diff_data)
         self.ui.pushButton_FitPeaks.clicked.connect(self.fit_peaks)
@@ -146,6 +147,10 @@ class FitPeaksWindow(QMainWindow):
 
     def test(self):
         print("in test")
+
+    def run_number_returned(self):
+        o_handler = EventHandler(parent=self)
+        o_handler.load_run_number()
 
     # Menu event handler
     def browse_hdf(self):

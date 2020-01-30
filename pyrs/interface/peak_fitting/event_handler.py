@@ -79,6 +79,10 @@ class EventHandler:
             pop_message(self, 'Failed to initialize widgets for {}'.format(hidra_file_name),
                         str(run_err), 'error')
 
+    def load_run_number(self):
+        run_number = str(self.parent.ui.lineEdit_run_number.text())
+
+
     def list_subruns_2dplot(self):
         raw_input = str(self.parent.ui.lineEdit_subruns_2dplot.text())
         o_gui = GuiUtilities(parent=self.parent)

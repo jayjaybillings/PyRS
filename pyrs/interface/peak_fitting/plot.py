@@ -1,7 +1,5 @@
 from __future__ import (absolute_import, division, print_function)  # python3 compatibility
 import numpy as np
-from matplotlib.figure import Figure
-import matplotlib.pyplot as plt
 
 from pyrs.interface.gui_helper import parse_integers
 from pyrs.interface.gui_helper import pop_message
@@ -133,13 +131,12 @@ class Plot:
 
         axis_x_data, axis_x_error = o_data_retriever.get_data(name=x_axis_name, peak_index=x_axis_peak_index)
         axis_y_data, axis_y_error = o_data_retriever.get_data(name=y_axis_name, peak_index=y_axis_peak_index)
-        axis_z_data, axis_z_error = o_data_retriever.get_data(name=z_axis_name, peak_index=z_axis_peak_index)
+        # axis_z_data, axis_z_error = o_data_retriever.get_data(name=z_axis_name, peak_index=z_axis_peak_index)
 
         self.parent.ui.graphicsView_plot2D.ax.clear()
 
         self.parent.ui.graphicsView_plot2D.ax.plot(axis_x_data, axis_y_data)
         self.parent.ui.graphicsView_plot2D._myCanvas.draw()
-
 
     def plot_1d(self):
 
@@ -159,7 +156,7 @@ class Plot:
         axis_x_data, axis_x_error = o_data_retriever.get_data(name=x_axis_name, peak_index=x_axis_peak_index)
         axis_y_data, axis_y_error = o_data_retriever.get_data(name=y_axis_name, peak_index=y_axis_peak_index)
 
-        if ((x_axis_name in LIST_AXIS_TO_PLOT['fit'].keys()) or \
+        if ((x_axis_name in LIST_AXIS_TO_PLOT['fit'].keys()) or
                 (y_axis_name in LIST_AXIS_TO_PLOT['fit'].keys())):
             is_plot_with_error = True
 
