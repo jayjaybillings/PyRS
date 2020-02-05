@@ -56,6 +56,11 @@ def load_split_nexus_python(nexus_name, mask_file_name):
     print('[INFO] Sub run splitting duration = {} second from {} to {}'
           ''.format((log_split_end - time_split_end).total_seconds(), time_split_end, log_split_end))
 
+    spec_info = nexus_processor._workspace.spectrumInfo()
+    twotheta = np.zeros(spec_info.size())
+    for i in range(spec_info.size()):
+        twotheta[i] = spec_info.twoTheta(i)
+
     return sub_run_counts, sample_logs, mask_array
 
 
@@ -98,6 +103,7 @@ class NexusProcessor(object):
             self._nexus_h5.close()
             raise RuntimeError('Sub scan (time = {}, value = {}) is not valid'
                                ''.format(scan_index_times, scan_index_value))
+
 
     def __del__(self):
         """Destructor

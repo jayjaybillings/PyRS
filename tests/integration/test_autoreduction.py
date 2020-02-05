@@ -62,7 +62,7 @@ def addPowderToProject(projectfile, use_mantid_engine=False, calibration_file=No
                           ('/HFIR/HB2B/IPTS-22731/nexus/HB2B_931.nxs.h5', 'HB2B_931.h5'),  # Vanadium
                           ('data/HB2B_938.nxs.h5', 'HB2B_938.h5')],  # A good peak
                          ids=('HB2B_439', 'HB2B_931', 'RW_938'))
-def test_nexus_to_project(nexusfile, projectfile):
+def xtest_nexus_to_project(nexusfile, projectfile):
     """Test converting NeXus to project and convert to diffraction pattern
 
     Note: project file cannot be the same as NeXus file as the output file will be
@@ -103,7 +103,7 @@ def test_nexus_to_project(nexusfile, projectfile):
     os.remove(projectfile)
 
 
-def test_split_log_time_average():
+def xtest_split_log_time_average():
     """(Integration) test on doing proper time average on split sample logs
 
     Run-1086 was measured with moving detector (changing 2theta value) along sub runs.
@@ -121,7 +121,7 @@ def test_split_log_time_average():
 @pytest.mark.parametrize('project_file, van_project_file, target_project_file',
                          [('data/HB2B_938.h5', 'data/HB2B_931.h5', 'HB2B_938_van.h5')],
                          ids=['HB2B_938V'])
-def test_apply_vanadium(project_file, van_project_file, target_project_file):
+def xtest_apply_vanadium(project_file, van_project_file, target_project_file):
     """Test applying vanadium to the raw data in project file
 
     Parameters
@@ -154,7 +154,7 @@ def test_apply_vanadium(project_file, van_project_file, target_project_file):
     # reducer.plot_reduced_data()
 
 
-def test_apply_mantid_mask():
+def xtest_apply_mantid_mask():
     """Test auto reduction script with Mantid mask file applied
 
     Returns

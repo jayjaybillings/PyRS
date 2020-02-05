@@ -301,6 +301,9 @@ class NeXusConvertingApp(object):
         # get the start time from the run object
         self._starttime = numpy.datetime64(mtd[self._event_ws_name].run()['start_time'].value)
 
+        spec_info = ws.spectrumInfo()
+        for i in range(spec_info.size()):
+            twotheta = spec_info.twoTheta(i)
         return
 
     def _determine_start_time(self, abs_tolerance=0.05):

@@ -6,9 +6,10 @@ from pyrs.utilities import checkdatatypes
 # from mantid.simpleapi import CreateWorkspace
 # from mantid.simpleapi import ResampleX
 # from mantid.simpleapi import SortXAxis
+from mantid.simpleapi import Load, MoveInstrumentComponent, RotateInstrumentComponent
 # import time
 import math
-
+import time
 
 class ResidualStressInstrument(object):
     """
@@ -124,24 +125,24 @@ class ResidualStressInstrument(object):
 
             # shift center
             self._pixel_matrix[:, :, 0] += instrument_calibration.center_shift_x
-            self._pixel_matrix[:, :, 1] += instrument_calibration.center_shift_y
+            #self._pixel_matrix[:, :, 1] += instrument_calibration.center_shift_y
 
             # rotation around instrument center
             # get rotation matrix at origin (for flip, spin and vertical): all data from calibration value
             rot_x_flip = instrument_calibration.rotation_x * np.pi / 180.
             rot_y_flip = instrument_calibration.rotation_y * np.pi / 180.
             rot_z_spin = instrument_calibration.rotation_z * np.pi / 180.
-            calib_matrix = self.generate_rotation_matrix(rot_x_flip, rot_y_flip, rot_z_spin)
+            #calib_matrix = self.generate_rotation_matrix(rot_x_flip, rot_y_flip, rot_z_spin)
             # print ('[DB...BAT] Calibration rotation matrix:\n{}'.format(calib_matrix))
             # and rotate at origin
-            self._pixel_matrix = self._rotate_detector(self._pixel_matrix, calib_matrix)
+            #self._pixel_matrix = self._rotate_detector(self._pixel_matrix, calib_matrix)
         # END-IF-ELSE
 
         # push to +Z at length of detector arm
         arm_l2 = l2
-        if instrument_calibration is not None:
+        #if instrument_calibration is not None:
             # Apply the shift on Z (arm length)
-            arm_l2 += instrument_calibration.center_shift_z
+            #arm_l2 += instrument_calibration.center_shift_z
         # END-IF
         self._pixel_matrix[:, :, 2] += arm_l2
 
@@ -150,10 +151,10 @@ class ResidualStressInstrument(object):
         two_theta_rot_matrix = self._cal_rotation_matrix_y(two_theta_rad)
         self._pixel_matrix = self._rotate_detector(self._pixel_matrix, two_theta_rot_matrix)
 
+
         # get 2theta and eta
         self._calculate_pixel_2theta()
         self._calculate_pixel_eta()
-
         return self._pixel_matrix
 
     def _calculate_pixel_2theta(self):
@@ -192,7 +193,6 @@ class ResidualStressInstrument(object):
         # END-IF-ELSE
 
         self._pixel_2theta_matrix = return_value
-
         return
 
     def _calculate_pixel_eta(self):
@@ -560,7 +560,7 @@ class PyHB2BReduction(object):
         #        are not required anymore but both of them will be replaced by integrated vanadium counts
 
         # use numpy.histogram
-        two_theta_bins, intensity_vector = self.histogram_by_numpy(pixel_2theta_array, counts_array,
+        two_theta_bins, intensity_vector = histogram_by_numpy(pixel_2theta_array, counts_array,
                                                                    two_theta_bins,
                                                                    is_point_data, vanadium_counts_array)
 
@@ -586,70 +586,70 @@ class PyHB2BReduction(object):
 
         return
 
-    @staticmethod
-    def histogram_by_numpy(pixel_2theta_array, pixel_count_array, two_theta_bins, is_point_data, vanadium_counts):
-        """Histogram a data set (X, Y) by numpy histogram algorithm
 
-        Assumption:
-        1. pixel_2theta_array[i] and vec_counts[i] correspond to the same detector pixel
+def histogram_by_numpy(pixel_2theta_array, pixel_count_array, two_theta_bins, is_point_data, vanadium_counts):
+    """Histogram a data set (X, Y) by numpy histogram algorithm
 
-        Parameters
-        ----------
-        pixel_2theta_array : ~numpy.ndarray
-            2theta (1D) array for each pixel
-        pixel_count_array : numpy.ndarray
-            count array (1D) for each pixel and paired to pixel_2theta_array
-        two_theta_bins : numpy.ndarray
-            2-theta bin boundaries
-        is_point_data : bool
-            Output shall be point data; otherwise, histogram data
-        vanadium_counts : None or numpy.ndarray
-            Vanadium counts for normalization and efficiency calibration.  It is allowed to be None
+    Assumption:
+    1. pixel_2theta_array[i] and vec_counts[i] correspond to the same detector pixel
 
-        Returns
-        -------
+    Parameters
+    ----------
+    pixel_2theta_array : ~numpy.ndarray
+        2theta (1D) array for each pixel
+    pixel_count_array : numpy.ndarray
+        count array (1D) for each pixel and paired to pixel_2theta_array
+    two_theta_bins : numpy.ndarray
+        2-theta bin boundaries
+    is_point_data : bool
+        Output shall be point data; otherwise, histogram data
+    vanadium_counts : None or numpy.ndarray
+        Vanadium counts for normalization and efficiency calibration.  It is allowed to be None
 
-        """
-        # Check inputs
-        checkdatatypes.check_numpy_arrays('Pixel 2theta array, pixel counts array',
-                                          [pixel_2theta_array, pixel_count_array],
-                                          1, True)
+    Returns
+    -------
 
-        # Exclude NaN and infinity regions
-        masked_pixels = (np.isnan(pixel_count_array)) | (np.isinf(pixel_count_array))
+    """
+    # Check inputs
+    checkdatatypes.check_numpy_arrays('Pixel 2theta array, pixel counts array',
+                                      [pixel_2theta_array, pixel_count_array],
+                                      1, True)
 
-        pixel_2theta_array = pixel_2theta_array[~masked_pixels]
-        pixel_count_array = pixel_count_array[~masked_pixels]
+    # Exclude NaN and infinity regions
+    masked_pixels = (np.isnan(pixel_count_array)) | (np.isinf(pixel_count_array))
 
-        # Call numpy to histogram
-        hist, bin_edges = np.histogram(pixel_2theta_array, bins=two_theta_bins, weights=pixel_count_array)
+    pixel_2theta_array = pixel_2theta_array[~masked_pixels]
+    pixel_count_array = pixel_count_array[~masked_pixels]
 
-        # Optionally to normalize by number of pixels (sampling points) in the 2theta bin
-        if vanadium_counts is None:
-            # Get the number of pixels in each bin
-            hist_bin, be_temp = np.histogram(pixel_2theta_array, bins=two_theta_bins)
-        else:
-            # Normalize by vanadium including efficiency calibration
-            checkdatatypes.check_numpy_arrays('Vanadium counts', [vanadium_counts], 1, False)
-            hist_bin, be_temp = np.histogram(pixel_2theta_array, bins=two_theta_bins, weights=vanadium_counts)
-        # END-IF-ELSE
+    # Call numpy to histogram
+    hist, bin_edges = np.histogram(pixel_2theta_array, bins=two_theta_bins, weights=pixel_count_array)
 
-        # Find out the bin where there is either no vanadium count or no pixel's located
-        # Mask these bins by NaN
-        # make sure it is float
-        hist_bin = hist_bin.astype(float)
-        hist_bin[np.where(hist_bin < 1E-10)] = np.nan
+    # Optionally to normalize by number of pixels (sampling points) in the 2theta bin
+    if vanadium_counts is None:
+        # Get the number of pixels in each bin
+        hist_bin, be_temp = np.histogram(pixel_2theta_array, bins=two_theta_bins)
+    else:
+        # Normalize by vanadium including efficiency calibration
+        checkdatatypes.check_numpy_arrays('Vanadium counts', [vanadium_counts], 1, False)
+        hist_bin, be_temp = np.histogram(pixel_2theta_array, bins=two_theta_bins, weights=vanadium_counts)
+    # END-IF-ELSE
 
-        # Normalize
-        hist /= hist_bin  # normalize
+    # Find out the bin where there is either no vanadium count or no pixel's located
+    # Mask these bins by NaN
+    # make sure it is float
+    hist_bin = hist_bin.astype(float)
+    hist_bin[np.where(hist_bin < 1E-10)] = np.nan
 
-        # convert to point data as an option.  Use the center of the 2theta bin as new theta
-        if is_point_data:
-            # calculate bin centers
-            bins = 0.5 * (bin_edges[1:] + bin_edges[:-1])
-        else:
-            # return bin edges
-            bins = bin_edges
+    # Normalize
+    hist /= hist_bin  # normalize
 
-        return bins, hist
+    # convert to point data as an option.  Use the center of the 2theta bin as new theta
+    if is_point_data:
+        # calculate bin centers
+        bins = 0.5 * (bin_edges[1:] + bin_edges[:-1])
+    else:
+        # return bin edges
+        bins = bin_edges
+
+    return bins, hist
 # END-CLASS
